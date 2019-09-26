@@ -10,8 +10,8 @@ import { gameResources } from '../resources/gameResources';
 const SCRATCH_FRAME = 'magic_forest_scratch_frame.png';
 
 interface ScratchableCardsConfig {
-    sizeX:     number,
-    sizeY:     number,
+    sizeX    : number,
+    sizeY    : number,
     itemsData: ItemData[],
     offsetX? : number,
     offsetY? : number
@@ -86,8 +86,8 @@ export class ScratchableCards extends Container {
         this.emit('scratchStop');
     }
 
-    onComplete () {
-        this.emit('complete');
+    onComplete (itemData: ItemData) {
+        this.emit('complete', itemData);
         this.checkAllCompleted();
     }
 

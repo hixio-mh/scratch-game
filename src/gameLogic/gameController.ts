@@ -4,65 +4,88 @@ import {
     BonusData
 } from '../gameData'
 
-interface ItemProbability {
-    data: ItemData | BonusData,
-    from: number,
-    to  : number
+import { ProbabilityQueue } from '../utils/Probability'
+import { shuffleArray }     from '../utils/ArrayUtils'
+
+interface WinData {
+    coins: number,
+    cash : number
 }
 
 export class GameController {
-    public items            : ItemData[];
-    public bonus            : BonusData;
-    private itemsProbability: ItemProbability[];
-    private bonusProbability: ItemProbability[];
+    public items  : ItemData[];
+    public winItem: ItemData;
+    public bonus  : BonusData;
+    public winData: WinData;
+    
+    private itemsQueue:   ProbabilityQueue
+    private bonusesQueue: ProbabilityQueue
 
     constructor () {
-        this.init();
-    }
+        this.items = [];
+        this.winItem = null;
+        this.bonus = null;
+        this.winData = null;
 
-    init () {
-        this.itemsProbability = [];
-        this.bonusProbability = [];
-
+        this.itemsQueue = new ProbabilityQueue('probability');
         gameData.items.forEach((item: ItemData) => {
-            if (!this.itemsProbability) {
-                this.itemsProbability.push({
-                    data: item,
-                    from: 0,
-                    to  : item.probability
-                })
-            }
-            let lastItem = this.itemsProbability[this.itemsProbability.length - 1];
+            this.itemsQueue.insert(item);
+        })
 
-            this.itemsProbability.push({
-                data: item,
-                from: (lastItem.to + 1),
-                to: (lastItem.to + 1) + item.probability
-            });
-        });
-
+        this.bonusesQueue = new ProbabilityQueue('probability');
         gameData.bonuses.forEach((bonus: BonusData) => {
-            if (!this.bonusProbability) {
-                this.bonusProbability.push({
-                    data: bonus,
-                    from: 0,
-                    to  : bonus.probability
-                })
-            }
-            let lastBonus = this.bonusProbability[this.bonusProbability.length - 1];
-            this.bonusProbability.push({
-                data: bonus,
-                from: (lastBonus.to + 1),
-                to  : (lastBonus.to + 1) + bonus.probability
-            })
+            this.bonusesQueue.insert(bonus);
         })
     }
 
-    create () {
+    create (): void {
+        const itemsCopy: ItemData[] = []
+        gameData.items.forEach((item: ItemData) => {
+            if (item.name !== 'loose')
+                itemsCopy.push(item);
+        });
 
+        this.winItem = this.itemsQueue.pick();
+        
+        this.items = [];
+        if (this.winItem.name !== 'loose') {
+            for (let i: number = 0; i < 3; i++) {
+                this.items.push(this.winItem);
+            }
+            itemsCopy.splice(itemsCopy.indexOf(this.winItem), 1);
+        }
+
+        while (this.items.length != 6) {
+            let item = itemsCopy.pop()
+            if (!item) {
+                item = this.items[0];
+            }
+            this.items.push(item);
+        }
+
+        shuffleArray(this.items);
+
+        this.bonus = this.bonusesQueue.pick();
+
+        this.calculateWinData();
     }
 
-    static generateRandomPercent () {
+    clear (): void {
+        this.items = [];
+        this.winItem = null;
+        this.bonus = null;
+    }
+
+    calculateWinData (): void {
+        this.winData = {
+            coins: 0,
+            cash : 0
+        };
+        this.winData.coins = this.winItem.coin + (this.bonus.coin || 0)
+        this.winData.cash = this.bonus.cash || 0
+    }
+
+    static generateRandomPercent (): number {
         return Math.round(Math.random() * 100);
     }
 }
