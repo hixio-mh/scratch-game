@@ -22,7 +22,7 @@
     "typescript"
   ],
   "dependencies": {
-    "@gamestdio/timer": "^1.1.9",
+    "@gamestdio/timer": "^1.3.2",
     "@types/webfontloader": "^1.6.29",
     "pixi-spine": "git://github.com/pixijs/pixi-spine.git#pixi4-spine3.8",
     "pixi.js": "4.7.1",
