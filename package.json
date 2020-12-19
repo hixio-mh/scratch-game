@@ -23,7 +23,7 @@
   ],
   "dependencies": {
     "@gamestdio/timer": "^1.1.9",
-    "@types/webfontloader": "^1.6.29",
+    "@types/webfontloader": "^1.6.32",
     "pixi-spine": "git://github.com/pixijs/pixi-spine.git#pixi4-spine3.8",
     "pixi.js": "4.7.1",
     "webfontloader": "^1.6.28"
